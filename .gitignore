@@ -23,6 +23,11 @@ static/uploads/*
 docs/디자인_미리보기.png
 _preview.html
 
+# 보고서 관련(제출은 PDF로 따로 함 → 저장소엔 안 올림)
+docs/보고서.html
+docs/그림_그리기_가이드.md
+docs/img/
+
 # OS / 에디터
 .DS_Store
 .idea/
