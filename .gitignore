@@ -1,0 +1,30 @@
+# 파이썬
+__pycache__/
+*.pyc
+
+# 가상환경 (.venv, .venv-1 등 전부)
+.venv*/
+venv/
+env/
+
+# 환경설정(비밀키 포함) — 절대 커밋하지 않는다
+.env
+
+# 로컬 데이터베이스 / 인스턴스 폴더
+instance/
+*.db
+
+# 업로드된 사용자 이미지(빈 폴더 유지용 .gitkeep 만 커밋)
+static/uploads/*
+!static/uploads/.gitkeep
+
+# 제출용 PDF / 미리보기 등 산출물(코드 저장소엔 불필요)
+*.pdf
+docs/디자인_미리보기.png
+_preview.html
+
+# OS / 에디터
+.DS_Store
+.idea/
+.vscode/
+.history/
