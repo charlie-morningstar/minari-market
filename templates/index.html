@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}상품 목록 · 미나리마켓{% endblock %}
+{% block content %}
+<h1 style="margin-bottom:2px;">둘러보기</h1>
+<p class="muted" style="margin:0 0 18px;">이웃이 내놓은 물건을 살펴보세요</p>
+
+<div class="row" style="margin-bottom:22px;">
+  <form class="search-bar" method="get" action="{{ url_for('products.index') }}"
+        style="flex:1; margin-bottom:0;">
+    <input type="text" name="q" value="{{ keyword or '' }}" maxlength="50"
+           placeholder="상품명 또는 설명으로 검색">
+    <button class="btn" type="submit">검색</button>
+  </form>
+  {% if me %}
+    <a class="btn" href="{{ url_for('products.create') }}"
+       style="display:flex; align-items:center; white-space:nowrap;">+ 상품 등록</a>
+  {% endif %}
+</div>
+
+{% if keyword %}
+  <p class="muted">"{{ keyword }}" 검색 결과 {{ products|length }}건</p>
+{% endif %}
+
+{% if products %}
+<div class="grid">
+  {% for p in products %}
+  <a class="product" href="{{ url_for('products.detail', product_id=p['id']) }}">
+    {% if p['image_path'] %}
+      <img class="thumb" src="{{ url_for('static', filename='uploads/' ~ p['image_path']) }}" alt="상품 이미지">
+    {% else %}
+      <div class="thumb">이미지 없음</div>
+    {% endif %}
+    <div class="body">
+      <div class="name">{{ p['title'] }}</div>
+      <div class="price">{{ "{:,}".format(p['price']) }}원</div>
+      <div class="seller">판매자 {{ p['seller_name'] }}</div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+  <div class="card"><p class="muted">등록된 상품이 없습니다.</p></div>
+{% endif %}
+{% endblock %}

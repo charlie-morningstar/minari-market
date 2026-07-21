@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ '상품 수정' if mode == 'edit' else '상품 등록' }} · 미나리마켓{% endblock %}
+{% block content %}
+<div class="card" style="max-width:560px; margin:0 auto;">
+  <h1>{{ '상품 수정' if mode == 'edit' else '새 상품 등록' }}</h1>
+
+  {% set action_url = url_for('products.edit', product_id=product['id']) if mode == 'edit' else url_for('products.create') %}
+  <form method="post" action="{{ action_url }}" enctype="multipart/form-data" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <label for="title">상품명</label>
+    <input type="text" id="title" name="title" maxlength="100" required
+           value="{{ form['title'] if form else '' }}">
+
+    <label for="price">가격 (원)</label>
+    <input type="number" id="price" name="price" min="0" max="100000000" required
+           value="{{ form['price'] if form else '' }}">
+
+    <label for="description">상품 설명</label>
+    <textarea id="description" name="description" maxlength="2000" required>{{ form['description'] if form else '' }}</textarea>
+
+    <label for="images">상품 사진 (선택, 여러 장 가능)</label>
+    <input type="file" id="images" name="images" accept=".png,.jpg,.jpeg,.gif,.webp" multiple>
+    <p class="hint">png/jpg/jpeg/gif/webp · 최대 6장 · 사진 한 장당 그리고 전체 합쳐 16MB 이내</p>
+    {% if mode == 'edit' %}
+      <p class="hint">이미 등록된 사진은 그대로 두고, 새로 올린 사진이 뒤에 추가됩니다.</p>
+    {% endif %}
+
+    <div style="margin-top:18px;">
+      <button class="btn" type="submit">{{ '수정 완료' if mode == 'edit' else '등록하기' }}</button>
+      <a class="btn btn-sub" href="{{ url_for('products.index') }}">취소</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

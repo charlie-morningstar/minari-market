@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}내 상품 · 미나리마켓{% endblock %}
+{% block content %}
+<div class="row" style="justify-content:space-between;">
+  <h1>내가 등록한 상품</h1>
+  <a class="btn" href="{{ url_for('products.create') }}">+ 상품 등록</a>
+</div>
+
+{% if products %}
+<div class="card">
+  <table>
+    <thead>
+      <tr><th>상품명</th><th>가격</th><th>상태</th><th>등록일</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for p in products %}
+      <tr>
+        <td><a href="{{ url_for('products.detail', product_id=p['id']) }}">{{ p['title'] }}</a></td>
+        <td>{{ "{:,}".format(p['price']) }}원</td>
+        <td>
+          {% if p['is_blocked'] %}<span class="tag tag-blocked">숨김</span>
+          {% else %}<span class="tag tag-ok">판매중</span>{% endif %}
+        </td>
+        <td class="muted">{{ p['created_at'] }}</td>
+        <td class="right">
+          <a class="btn btn-sub btn-sm" href="{{ url_for('products.edit', product_id=p['id']) }}">수정</a>
+          <form class="inline-form" method="post"
+                action="{{ url_for('products.delete', product_id=p['id']) }}"
+                onsubmit="return confirm('정말 삭제할까요?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-danger btn-sm" type="submit">삭제</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+  <div class="card"><p class="muted">아직 등록한 상품이 없습니다.</p></div>
+{% endif %}
+{% endblock %}

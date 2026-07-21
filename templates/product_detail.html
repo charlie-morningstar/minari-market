@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}{{ product['title'] }} · 미나리마켓{% endblock %}
+{% block content %}
+<div class="card">
+  {% if product['is_blocked'] %}
+    <p class="tag tag-blocked">신고 누적으로 숨김 처리된 상품입니다.</p>
+  {% endif %}
+
+  <div class="row" style="align-items:flex-start;">
+    <div style="flex:0 0 320px; max-width:100%;">
+      {% if images %}
+        <!-- 대표 사진: 클릭하면 뷰어가 열린다. 여러 장이면 화살표로 넘김.
+             각 사진의 URL 은 data-src 로 두고 product.js 가 읽어 뷰어에 띄운다. -->
+        <img id="gallery-main" class="gallery-main"
+             src="{{ url_for('static', filename='uploads/' ~ images[0]) }}" alt="상품 사진"
+             data-index="0">
+        {% if images|length > 1 %}
+          <div class="gallery-thumbs">
+            {% for img in images %}
+              <img class="gallery-thumb {% if loop.first %}active{% endif %}"
+                   src="{{ url_for('static', filename='uploads/' ~ img) }}"
+                   data-index="{{ loop.index0 }}" alt="사진 {{ loop.index }}">
+            {% endfor %}
+          </div>
+        {% endif %}
+        <!-- 뷰어가 읽을 전체 사진 URL 목록(줄바꿈으로 구분) -->
+        <div id="gallery-data" hidden>{% for img in images %}{{ url_for('static', filename='uploads/' ~ img) }}
+{% endfor %}</div>
+      {% else %}
+        <div class="thumb" style="height:220px; border-radius:10px;">이미지 없음</div>
+      {% endif %}
+    </div>
+
+    <div style="flex:1; min-width:240px;">
+      <h1>{{ product['title'] }}</h1>
+      <p class="balance">{{ "{:,}".format(product['price']) }}원</p>
+      <p class="muted">
+        판매자
+        <a href="{{ url_for('auth.profile', user_id=product['seller_id']) }}">{{ product['seller_name'] }}</a>
+        · 등록일 {{ product['created_at'] }}
+      </p>
+      <!-- 설명은 Jinja2 자동 이스케이프로 출력되어 HTML/스크립트가 실행되지 않는다 -->
+      <p style="white-space:pre-wrap; margin-top:14px;">{{ product['description'] }}</p>
+
+      <div class="row" style="margin-top:20px;">
+        {% if is_owner %}
+          <a class="btn btn-sub" href="{{ url_for('products.edit', product_id=product['id']) }}">수정</a>
+          <form class="inline-form" method="post"
+                action="{{ url_for('products.delete', product_id=product['id']) }}"
+                onsubmit="return confirm('정말 삭제할까요?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-danger" type="submit">삭제</button>
+          </form>
+        {% elif me %}
+          <a class="btn" href="{{ url_for('community.dm', other_id=product['seller_id']) }}">판매자에게 쪽지</a>
+          <a class="btn btn-sub" href="{{ url_for('wallet.wallet') }}">송금하기</a>
+          <a class="btn btn-danger btn-sm"
+             href="{{ url_for('community.report', type='product', target_id=product['id']) }}">🚨 신고</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 사진 뷰어(라이트박스). 기본은 숨김. product.js 가 열고 닫는다. -->
+{% if images %}
+<div id="viewer" class="viewer" hidden>
+  <button class="viewer-close" id="viewer-close" aria-label="닫기">✕</button>
+  {% if images|length > 1 %}
+    <button class="viewer-nav viewer-prev" id="viewer-prev" aria-label="이전">‹</button>
+    <button class="viewer-nav viewer-next" id="viewer-next" aria-label="다음">›</button>
+  {% endif %}
+  <img id="viewer-img" class="viewer-img" src="" alt="상품 사진 확대">
+  <div class="viewer-count" id="viewer-count"></div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/product.js') }}"></script>
+{% endblock %}
