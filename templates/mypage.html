@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}마이페이지 · 미나리마켓{% endblock %}
+{% block content %}
+<h1>마이페이지</h1>
+
+<div class="card">
+  <h2>내 정보</h2>
+  <p><b>아이디</b> {{ user['username'] }}</p>
+  <p><b>가상 잔액</b> <span class="balance" style="font-size:20px;">{{ "{:,}".format(user['balance']) }} P</span></p>
+  <p class="muted">가입일 {{ user['created_at'] }}</p>
+</div>
+
+<div class="card">
+  <h2>소개글 수정</h2>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="bio">
+    <textarea name="bio" maxlength="300">{{ user['bio'] }}</textarea>
+    <div style="margin-top:12px;"><button class="btn" type="submit">소개글 저장</button></div>
+  </form>
+</div>
+
+<div class="card">
+  <h2>비밀번호 변경</h2>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="password">
+    <label for="current_password">현재 비밀번호</label>
+    <input type="password" id="current_password" name="current_password" maxlength="64" required>
+    <label for="new_password">새 비밀번호</label>
+    <input type="password" id="new_password" name="new_password" maxlength="64" required>
+    <p class="hint">영문과 숫자를 포함해 8자 이상</p>
+    <div style="margin-top:12px;"><button class="btn" type="submit">비밀번호 변경</button></div>
+  </form>
+</div>
+
+<div class="card">
+  <h2>최근 거래 내역</h2>
+  {% if transfers %}
+  <table>
+    <thead><tr><th>일시</th><th>구분</th><th>상대</th><th class="right">금액</th><th>메모</th></tr></thead>
+    <tbody>
+      {% for t in transfers %}
+      <tr>
+        <td class="muted">{{ t['created_at'] }}</td>
+        {% if t['sender_name'] == user['username'] %}
+          <td><span class="tag tag-blocked">보냄</span></td>
+          <td>{{ t['receiver_name'] }}</td>
+          <td class="right">- {{ "{:,}".format(t['amount']) }} P</td>
+        {% else %}
+          <td><span class="tag tag-ok">받음</span></td>
+          <td>{{ t['sender_name'] }}</td>
+          <td class="right">+ {{ "{:,}".format(t['amount']) }} P</td>
+        {% endif %}
+        <td>{{ t['memo'] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="muted">거래 내역이 없습니다.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ target['username'] }}님의 프로필 · 미나리마켓{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="row" style="justify-content:space-between;">
+    <h1>{{ target['username'] }}님</h1>
+    {% if me and me['id'] != target['id'] %}
+    <div class="row">
+      <a class="btn btn-sm" href="{{ url_for('community.dm', other_id=target['id']) }}">쪽지 보내기</a>
+      <a class="btn btn-danger btn-sm"
+         href="{{ url_for('community.report', type='user', target_id=target['id']) }}">🚨 신고</a>
+    </div>
+    {% endif %}
+  </div>
+  <!-- 소개글도 자동 이스케이프되어 안전하게 출력된다 -->
+  <p style="white-space:pre-wrap;">{{ target['bio'] or '등록된 소개글이 없습니다.' }}</p>
+</div>
+
+<h2>판매 중인 상품</h2>
+{% if products %}
+<div class="grid">
+  {% for p in products %}
+  <a class="product" href="{{ url_for('products.detail', product_id=p['id']) }}">
+    {% if p['image_path'] %}
+      <img class="thumb" src="{{ url_for('static', filename='uploads/' ~ p['image_path']) }}" alt="상품 이미지">
+    {% else %}<div class="thumb">이미지 없음</div>{% endif %}
+    <div class="body">
+      <div class="name">{{ p['title'] }}</div>
+      <div class="price">{{ "{:,}".format(p['price']) }}원</div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+  <div class="card"><p class="muted">판매 중인 상품이 없습니다.</p></div>
+{% endif %}
+{% endblock %}

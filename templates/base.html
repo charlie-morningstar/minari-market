@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}미나리마켓{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="{{ url_for('products.index') }}">
+        <svg viewBox="0 0 24 24" fill="#6dc077" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M20 3c-8 0-14 4-14 11 0 1 .1 2 .4 3L4 20l1.5 1.5 2.6-2.6c1 .4 2 .6 3.1.6 7 0 10-6 10-14 0-.8-.1-1.6-.2-2.5zM11 17c-.6 0-1.2-.1-1.7-.3l6.4-6.4-1-1L8.3 15.7C8.1 15.2 8 14.6 8 14c0-5 4-8 10-8.2C17.8 12 15 17 11 17z"/>
+        </svg>
+        미나리마켓
+      </a>
+      <nav class="nav">
+        {% if me %}
+          <a href="{{ url_for('products.index') }}">상품</a>
+          <a href="{{ url_for('community.chat') }}">전체채팅</a>
+          <a href="{{ url_for('community.dm_list') }}">쪽지</a>
+          <a href="{{ url_for('wallet.wallet') }}">지갑</a>
+          <a href="{{ url_for('products.mine') }}">내 상품</a>
+          <a href="{{ url_for('auth.mypage') }}">마이페이지</a>
+          {% if me['is_admin'] %}
+            <a class="admin-link" href="{{ url_for('admin.dashboard') }}">관리자</a>
+          {% endif %}
+          <span class="me">{{ me['username'] }}님</span>
+          <a class="btn-logout" href="{{ url_for('auth.logout') }}">로그아웃</a>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}">로그인</a>
+          <a href="{{ url_for('auth.register') }}">회원가입</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flash">
+          {% for message in messages %}
+            <p>{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <p>미나리마켓 · 가까운 이웃과의 안전한 중고거래</p>
+  </footer>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>
