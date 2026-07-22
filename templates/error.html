@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}오류 {{ code }} · 미나리마켓{% endblock %}
+{% block content %}
+<div class="card" style="text-align:center; max-width:480px; margin:40px auto;">
+  <h1 style="font-size:48px; margin-bottom:8px;">{{ code }}</h1>
+  <p class="muted">{{ message }}</p>
+  <div style="margin-top:20px;">
+    <a class="btn" href="{{ url_for('products.index') }}">홈으로</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ other['username'] }}님과의 대화 · 미나리마켓{% endblock %}
+{% block content %}
+<div class="row" style="justify-content:space-between; align-items:center;">
+  <h1 style="margin-bottom:0;">{{ other['username'] }}님과의 대화</h1>
+  <a class="btn btn-sub btn-sm" href="{{ url_for('auth.profile', user_id=other['id']) }}">프로필 보기</a>
+</div>
+<p class="muted"><a href="{{ url_for('community.dm_list') }}">← 쪽지함</a></p>
+
+<div id="chat" data-room="{{ room }}" data-username="{{ me['username'] }}"
+     data-csrf="{{ csrf_token() }}">
+  <div id="chat-box" class="chat-box">
+    {% set ns = namespace(last='') %}
+    {% for m in recent %}
+      {% set d = m['created_at'][:10] %}
+      {% if d != ns.last %}
+        <div class="chat-date"><span>{{ d }}</span></div>
+        {% set ns.last = d %}
+      {% endif %}
+      <div class="chat-msg">
+        <span class="who"><a href="{{ url_for('auth.profile', user_id=m['sender_id']) }}">{{ m['username'] }}</a></span>
+        {% if m['image_path'] %}
+          <img class="chat-img" alt="사진"
+               src="{{ url_for('static', filename='uploads/' ~ m['image_path']) }}">
+        {% else %}{{ m['content'] }}{% endif %}
+        <span class="time">{{ m['created_at'][11:16] }}</span>
+      </div>
+    {% endfor %}
+  </div>
+  <form id="chat-form" class="chat-form" autocomplete="off">
+    <label class="chat-photo-btn" title="사진 보내기">＋
+      <input type="file" id="chat-photo" accept=".png,.jpg,.jpeg,.gif,.webp" hidden>
+    </label>
+    <input type="text" id="chat-input" maxlength="500" placeholder="메시지를 입력하세요">
+    <button class="btn" type="submit">전송</button>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}

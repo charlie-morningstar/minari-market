@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}관리자 · 미나리마켓{% endblock %}
+{% block content %}
+<h1>관리자 대시보드</h1>
+
+<div class="card">
+  <h2>사용자 ({{ users|length }})</h2>
+  <table>
+    <thead><tr><th>아이디</th><th>신고수</th><th>상태</th><th>권한</th><th class="right">관리</th></tr></thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u['username'] }}</td>
+        <td>{{ u['report_count'] }}</td>
+        <td>
+          {% if u['is_dormant'] %}<span class="tag tag-blocked">휴면</span>
+          {% else %}<span class="tag tag-ok">정상</span>{% endif %}
+        </td>
+        <td>{{ '관리자' if u['is_admin'] else '일반' }}</td>
+        <td class="right">
+          {% if not u['is_admin'] %}
+          <form class="inline-form" method="post" action="{{ url_for('admin.toggle_user', user_id=u['id']) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-sm {{ 'btn-sub' if u['is_dormant'] else 'btn-danger' }}" type="submit">
+              {{ '휴면 해제' if u['is_dormant'] else '휴면 처리' }}
+            </button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h2>상품 ({{ products|length }})</h2>
+  <table>
+    <thead><tr><th>상품명</th><th>판매자</th><th>신고수</th><th>상태</th><th class="right">관리</th></tr></thead>
+    <tbody>
+      {% for p in products %}
+      <tr>
+        <td><a href="{{ url_for('products.detail', product_id=p['id']) }}">{{ p['title'] }}</a></td>
+        <td>{{ p['seller_name'] }}</td>
+        <td>{{ p['report_count'] }}</td>
+        <td>
+          {% if p['is_blocked'] %}<span class="tag tag-blocked">숨김</span>
+          {% else %}<span class="tag tag-ok">노출</span>{% endif %}
+        </td>
+        <td class="right">
+          <form class="inline-form" method="post" action="{{ url_for('admin.toggle_product', product_id=p['id']) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-sm btn-sub" type="submit">{{ '노출' if p['is_blocked'] else '숨김' }}</button>
+          </form>
+          <form class="inline-form" method="post" action="{{ url_for('admin.delete_product', product_id=p['id']) }}"
+                onsubmit="return confirm('삭제할까요?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-sm btn-danger" type="submit">삭제</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h2>최근 신고 내역 ({{ reports|length }})</h2>
+  {% if reports %}
+  <table>
+    <thead><tr><th>일시</th><th>신고자</th><th>대상유형</th><th>대상ID</th><th>사유</th></tr></thead>
+    <tbody>
+      {% for r in reports %}
+      <tr>
+        <td class="muted">{{ r['created_at'] }}</td>
+        <td>{{ r['reporter_name'] }}</td>
+        <td>{{ '사용자' if r['target_type'] == 'user' else '상품' }}</td>
+        <td class="muted">{{ r['target_id'][:8] }}…</td>
+        <td>{{ r['reason'] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="muted">신고 내역이 없습니다.</p>
+  {% endif %}
+</div>
+{% endblock %}

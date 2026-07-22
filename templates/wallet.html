@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}지갑 · 미나리마켓{% endblock %}
+{% block content %}
+<h1>내 지갑</h1>
+
+<div class="card">
+  <p class="muted">현재 잔액</p>
+  <p class="balance">{{ "{:,}".format(me['balance']) }} P</p>
+  <p class="hint">본 플랫폼의 잔액은 실제 화폐가 아닌 가상 포인트입니다.</p>
+
+  <form method="post" action="{{ url_for('wallet.charge') }}" class="row" style="margin-top:10px;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="number" name="amount" min="1" max="1000000" placeholder="충전 금액" style="width:160px;" required>
+    <button class="btn btn-sub" type="submit">포인트 충전(데모)</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>송금하기</h2>
+  <form method="post" action="{{ url_for('wallet.transfer') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label for="to_username">받는 사람 아이디</label>
+    <input type="text" id="to_username" name="to_username" maxlength="20" required>
+    <label for="amount">금액 (P)</label>
+    <input type="number" id="amount" name="amount" min="1" required>
+    <label for="memo">메모 (선택)</label>
+    <input type="text" id="memo" name="memo" maxlength="100">
+    <div style="margin-top:14px;"><button class="btn" type="submit">송금</button></div>
+  </form>
+</div>
+
+<div class="card">
+  <h2>거래 내역</h2>
+  {% if history %}
+  <table>
+    <thead><tr><th>일시</th><th>구분</th><th>상대</th><th class="right">금액</th><th>메모</th></tr></thead>
+    <tbody>
+      {% for t in history %}
+      <tr>
+        <td class="muted">{{ t['created_at'] }}</td>
+        {% if t['sender_name'] == me['username'] %}
+          <td><span class="tag tag-blocked">보냄</span></td>
+          <td>{{ t['receiver_name'] }}</td>
+          <td class="right">- {{ "{:,}".format(t['amount']) }} P</td>
+        {% else %}
+          <td><span class="tag tag-ok">받음</span></td>
+          <td>{{ t['sender_name'] }}</td>
+          <td class="right">+ {{ "{:,}".format(t['amount']) }} P</td>
+        {% endif %}
+        <td>{{ t['memo'] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="muted">거래 내역이 없습니다.</p>
+  {% endif %}
+</div>
+{% endblock %}

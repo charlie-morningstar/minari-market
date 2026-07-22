@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}쪽지함 · 미나리마켓{% endblock %}
+{% block content %}
+<h1>쪽지함</h1>
+<p class="muted">상품 상세나 프로필에서 "쪽지 보내기"를 누르면 대화가 시작됩니다.</p>
+
+{% if convos %}
+<div class="card" style="padding:6px 0;">
+  {% for c in convos %}
+  <a class="dm-item" href="{{ url_for('community.dm', other_id=c['other']['id']) }}">
+    <div class="dm-avatar">{{ c['other']['username'][0]|upper }}</div>
+    <div class="dm-body">
+      <div class="dm-top">
+        <span class="dm-name">{{ c['other']['username'] }}</span>
+        {% if c['last'] %}<span class="dm-time">{{ c['last']['created_at'][:16] }}</span>{% endif %}
+      </div>
+      <div class="dm-preview">
+        {% if c['last'] and c['last']['image_path'] %}[사진]
+        {% elif c['last'] %}{{ c['last']['content'] }}
+        {% else %}대화를 시작해 보세요{% endif %}
+      </div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+  <div class="card"><p class="muted">아직 주고받은 쪽지가 없습니다.</p></div>
+{% endif %}
+{% endblock %}

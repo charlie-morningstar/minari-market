@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}전체 채팅 · 미나리마켓{% endblock %}
+{% block content %}
+<h1>전체 채팅</h1>
+<p class="muted">플랫폼에 접속한 모든 사용자와 실시간으로 대화할 수 있습니다.</p>
+
+<!-- data-* 로 방/사용자/CSRF 토큰을 전달하고 chat.js 가 읽는다.
+     (CSP 로 인라인 스크립트를 막았기 때문에 데이터 속성 방식을 사용) -->
+<div id="chat" data-room="global" data-username="{{ me['username'] }}"
+     data-csrf="{{ csrf_token() }}">
+  <div id="chat-box" class="chat-box">
+    {% set ns = namespace(last='') %}
+    {% for m in recent %}
+      {% set d = m['created_at'][:10] %}
+      {% if d != ns.last %}
+        <div class="chat-date"><span>{{ d }}</span></div>
+        {% set ns.last = d %}
+      {% endif %}
+      <div class="chat-msg">
+        <span class="who"><a href="{{ url_for('auth.profile', user_id=m['sender_id']) }}">{{ m['username'] }}</a></span>
+        {% if m['image_path'] %}
+          <img class="chat-img" alt="사진"
+               src="{{ url_for('static', filename='uploads/' ~ m['image_path']) }}">
+        {% else %}{{ m['content'] }}{% endif %}
+        <span class="time">{{ m['created_at'][11:16] }}</span>
+      </div>
+    {% endfor %}
+  </div>
+  <form id="chat-form" class="chat-form" autocomplete="off">
+    <label class="chat-photo-btn" title="사진 보내기">＋
+      <input type="file" id="chat-photo" accept=".png,.jpg,.jpeg,.gif,.webp" hidden>
+    </label>
+    <input type="text" id="chat-input" maxlength="500" placeholder="메시지를 입력하세요">
+    <button class="btn" type="submit">전송</button>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}
